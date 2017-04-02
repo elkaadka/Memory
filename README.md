@@ -12,9 +12,7 @@ A simple Memory usage tracking class to benchmark functions or code execution me
    ```
        $usage = MemoryUsage::lap();
     ```
-   where $duration is in milliseconds
-           
- - If you want the memory used between this lap and the last one, send true as a parameter:
+ - If you want the memory used between this lap and the last one, send the following constant as a parameter:
    ```
        $usage = MemoryUsage::lap(MemoryUsage::FROM_LAST_LAP);
     ```
@@ -25,4 +23,12 @@ A simple Memory usage tracking class to benchmark functions or code execution me
  - To stop the memory tracking and get the memory used from the last lap 
     ```
         $usage = MemoryUsage::stop(MemoryUsage::FROM_LAST_LAP);
+    ```
+ - To get all the memory used recorded
+    ```
+        $memoryUsage = MemoryUsage::getMemoryUsages();
+    ```
+ - To get the history of tracked memory
+    ```
+        $memoryUsage = MemoryUsage::getHistory();
     ```

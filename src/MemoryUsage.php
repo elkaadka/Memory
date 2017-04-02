@@ -95,6 +95,7 @@ class MemoryUsage
         self::$laps = 0;
         self::$memory = [];
         self::$status = self::NONE;
+        self::$statistics = [];
     }
 
     /**
@@ -110,7 +111,7 @@ class MemoryUsage
      * returns all the metrics calculated throughout the Timer life
      * @return array
      */
-    public static function getStatistics(): array
+    public static function getHistory(): array
     {
         return self::$statistics;
     }

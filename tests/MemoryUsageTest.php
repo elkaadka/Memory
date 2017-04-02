@@ -93,4 +93,30 @@ class MemoryUsageTest extends TestCase
         $this->assertEquals($memoryUsed, 1);
     }
 
+    public function testGetMemoryUsages()
+    {
+        MemoryUsage::start();
+        MemoryUsage::lap();
+        MemoryUsage::lap();
+        MemoryUsage::stop(MemoryUsage::FROM_LAST_LAP);
+        $this->assertEquals(count(MemoryUsage::getMemoryUsages()), 4);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[0], 1);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[1], 2);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[2], 3);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[3], 4);
+    }
+
+    public function testGetHistory()
+    {
+        MemoryUsage::start();
+        MemoryUsage::lap();
+        MemoryUsage::lap();
+        MemoryUsage::stop();
+        $this->assertEquals(count(MemoryUsage::getHistory()), 3);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[0], 1);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[1], 2);
+        $this->assertEquals(MemoryUsage::getMemoryUsages()[2], 3);
+
+    }
+
 }
