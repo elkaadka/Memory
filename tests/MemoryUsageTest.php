@@ -128,4 +128,18 @@ class MemoryUsageTest extends TestCase
 			$this->assertInstanceOf(MemoryUsage::class, $item);
 		}
     }
+
+	public function testGetLastBench()
+	{
+		MemoryBench::start();
+		MemoryBench::lap();
+		MemoryBench::lap();
+		MemoryBench::stop();
+		$memoryUsage = MemoryBench::getLastBench();
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(18, $memoryUsage->getMemory());
+		$this->assertEquals(18, $memoryUsage->getRealMemory());
+		$this->assertEquals(18, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(18, $memoryUsage->getRealMemoryPeak());
+	}
 }

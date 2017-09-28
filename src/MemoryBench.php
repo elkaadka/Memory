@@ -136,7 +136,17 @@ class MemoryBench
         return self::$statistics;
     }
 
-    /**
+	/**
+	 * returns all the metrics calculated throughout the Timer life
+	 * @return MemoryUsage
+	 */
+	public static function getLastBench()
+	{
+		return end(self::$statistics);
+	}
+
+
+	/**
      * gets the current status of the time :
      * @return string values are started|stopped
      */
