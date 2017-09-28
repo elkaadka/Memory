@@ -9,14 +9,24 @@ function memory_get_usage(bool $real_usage = false): float
 {
     if ($real_usage === true) {
         return ++MemoryUsageTest::$memory;
-    }
+    } else {
+		return MemoryUsageTest::$memory += 2;
 
-    throw new \Exception('wrong microtime usage in Timer context');
+	}
+}
+
+function memory_get_peak_usage(bool $real_usage = false): float
+{
+	if ($real_usage === true) {
+		return ++MemoryUsageTest::$memory;
+	} else {
+		return MemoryUsageTest::$memory += 2;
+	}
 }
 
 class MemoryUsageTest extends TestCase
 {
-    public static $memory ;
+    public static $memory;
     protected $timer;
     /**
      * Prepares the environment before running a test.
@@ -37,86 +47,85 @@ class MemoryUsageTest extends TestCase
 
     public function testStart()
     {
-        MemoryUsage::start();
-        $this->assertEquals(MemoryUsage::getStatus(), MemoryUsage::STARTED);
-        $this->assertEquals(count(MemoryUsage::getMemoryUsages()), 1);
+        MemoryBench::start();
+        $this->assertEquals(MemoryBench::getStatus(), MemoryBench::STARTED);
     }
 
     public function testStopFail()
     {
         $this->expectException(MemoryUsageException::class);
-        MemoryUsage::reset();
-        MemoryUsage::stop();
+        MemoryBench::reset();
+        MemoryBench::stop();
     }
 
     public function testStop()
     {
-        MemoryUsage::start();
-        MemoryUsage::lap();
-        MemoryUsage::lap();
-        $memoryUsed = MemoryUsage::stop();
-        $this->assertEquals(MemoryUsage::getStatus(), MemoryUsage::STOPPED);
-        $this->assertEquals($memoryUsed, 3);
-        $this->assertEquals(count(MemoryUsage::getMemoryUsages()), 4);
-    }
+        MemoryBench::start();
+        $memoryUsage = MemoryBench::stop();
+		$this->assertEquals(MemoryBench::getStatus(), MemoryBench::STOPPED);
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(6, $memoryUsage->getMemory());
+		$this->assertEquals(6, $memoryUsage->getRealMemory());
+		$this->assertEquals(6, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(6, $memoryUsage->getRealMemoryPeak());
+	}
 
     public function testStopWithLaps()
     {
-        MemoryUsage::start();
-        MemoryUsage::lap();
-        MemoryUsage::lap();
-        $memoryUsed = MemoryUsage::stop(MemoryUsage::FROM_LAST_LAP);
-        $this->assertEquals(MemoryUsage::getStatus(), MemoryUsage::STOPPED);
-        $this->assertEquals($memoryUsed, 1);
-        $this->assertEquals(count(MemoryUsage::getMemoryUsages()), 4);
+        MemoryBench::start();
+        MemoryBench::lap();
+        MemoryBench::lap();
+		$memoryUsage = MemoryBench::stop(MemoryBench::FROM_LAST_LAP);
+		$this->assertEquals(MemoryBench::getStatus(), MemoryBench::STOPPED);
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(6, $memoryUsage->getMemory());
+		$this->assertEquals(6, $memoryUsage->getRealMemory());
+		$this->assertEquals(6, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(6, $memoryUsage->getRealMemoryPeak());
     }
 
     public function testLapFail()
     {
         $this->expectException(MemoryUsageException::class);
-        MemoryUsage::reset();
-        MemoryUsage::lap();
+        MemoryBench::reset();
+        MemoryBench::lap();
     }
 
     public function testLap()
     {
-        MemoryUsage::start();
-        $memoryUsed = MemoryUsage::lap();
-        $this->assertEquals($memoryUsed, 1);
-        $memoryUsed = MemoryUsage::lap();
-        $this->assertEquals($memoryUsed, 2);
-        $memoryUsed = MemoryUsage::lap();
-        $this->assertEquals($memoryUsed, 3);
-        $memoryUsed = MemoryUsage::lap();
-        $this->assertEquals($memoryUsed, 4);
-        $memoryUsed = MemoryUsage::lap(MemoryUsage::FROM_LAST_LAP);
-        $this->assertEquals($memoryUsed, 1);
-    }
+        MemoryBench::start();
+		$memoryUsage = MemoryBench::lap();
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(6, $memoryUsage->getMemory());
+		$this->assertEquals(6, $memoryUsage->getRealMemory());
+		$this->assertEquals(6, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(6, $memoryUsage->getRealMemoryPeak());
 
-    public function testGetMemoryUsages()
-    {
-        MemoryUsage::start();
-        MemoryUsage::lap();
-        MemoryUsage::lap();
-        MemoryUsage::stop(MemoryUsage::FROM_LAST_LAP);
-        $this->assertEquals(count(MemoryUsage::getMemoryUsages()), 4);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[0], 1);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[1], 2);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[2], 3);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[3], 4);
+        $memoryUsage = MemoryBench::lap();
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(12, $memoryUsage->getMemory());
+		$this->assertEquals(12, $memoryUsage->getRealMemory());
+		$this->assertEquals(12, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(12, $memoryUsage->getRealMemoryPeak());
+
+        $memoryUsage = MemoryBench::lap();
+		$this->assertInstanceOf(MemoryUsage::class, $memoryUsage);
+		$this->assertEquals(18, $memoryUsage->getMemory());
+		$this->assertEquals(18, $memoryUsage->getRealMemory());
+		$this->assertEquals(18, $memoryUsage->getMemoryPeak());
+		$this->assertEquals(18, $memoryUsage->getRealMemoryPeak());
     }
 
     public function testGetHistory()
     {
-        MemoryUsage::start();
-        MemoryUsage::lap();
-        MemoryUsage::lap();
-        MemoryUsage::stop();
-        $this->assertEquals(count(MemoryUsage::getHistory()), 3);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[0], 1);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[1], 2);
-        $this->assertEquals(MemoryUsage::getMemoryUsages()[2], 3);
-
+        MemoryBench::start();
+        MemoryBench::lap();
+        MemoryBench::lap();
+        MemoryBench::stop();
+        $history = MemoryBench::getHistory();
+        $this->assertEquals(count($history), 3);
+        foreach ($history as $item) {
+			$this->assertInstanceOf(MemoryUsage::class, $item);
+		}
     }
-
 }
